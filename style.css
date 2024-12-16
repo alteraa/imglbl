@@ -1,0 +1,32 @@
+.gradio-container {
+    max-width: 800px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+.center-container {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 50vh !important;
+    gap: 2rem !important;
+}
+
+.image-container {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+.button-container {
+    display: flex !important;
+    justify-content: center !important;
+    gap: 10px !important;
+}
+
+/* Remove any default margins/paddings that might affect centering */
+.gradio-row, .gradio-column {
+    margin: 0 !important;
+    padding: 0 !important;
+} 
