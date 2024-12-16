@@ -1,23 +1,33 @@
 import os
+import sys
 import random
 import shutil
 import functools
 import gradio as gr
 from pathlib import Path
 
+sys.tracebacklimit = 0
+# configuration
+BASE_IMAGES_DIR = "original_images"
+CLASS_A_LABEL = "Class A"
+CLASS_B_LABEL = "Class B"
+DISCARD_LABEL = "Discard"
+# change this to your own directories
 CHOICE_TO_DIR = {
-    "Class A": Path("class_a"),
-    "Class B": Path("class_b"),
-    "Discard": Path("discard"),
+    CLASS_A_LABEL: Path("class_a"),
+    CLASS_B_LABEL: Path("class_b"),
+    DISCARD_LABEL: Path("discard"),
 }
+# image extensions
+IMAGE_EXTENSIONS = (".png", ".jpg", ".jpeg", ".gif", ".bmp")
 
 
 def get_images():
-    """Get all images from original_images directory"""
+    """Get all images from base images directory"""
     return [
         f
-        for f in os.listdir("original_images")
-        if f.lower().endswith((".png", ".jpg", ".jpeg", ".gif", ".bmp"))
+        for f in os.listdir(str(BASE_IMAGES_DIR))
+        if f.lower().endswith(IMAGE_EXTENSIONS)
     ]
 
 
@@ -33,11 +43,11 @@ def print_reamining_images(fn):
 
 
 def get_random_image():
-    """Get a random image from original_images directory"""
+    """Get a random image from base images directory."""
     images = get_images()
     if len(images) == 0:
-        raise gr.Error("No images found!")
-    img_path = os.path.join("original_images", random.choice(images))
+        raise gr.Error("No images found in the base folder!")
+    img_path = os.path.join(BASE_IMAGES_DIR, random.choice(images))
     return img_path, img_path
 
 
@@ -74,9 +84,9 @@ with gr.Blocks() as app:
 
     # Button container
     with gr.Row(equal_height=True, variant="panel", elem_classes="button-container"):
-        btn_a = gr.Button("Class A", size="sm")
-        btn_b = gr.Button("Class B", size="sm")
-        btn_discard = gr.Button("Discard", size="sm")
+        btn_a = gr.Button(CLASS_A_LABEL, size="sm")
+        btn_b = gr.Button(CLASS_B_LABEL, size="sm")
+        btn_discard = gr.Button(DISCARD_LABEL, size="sm")
 
     # Read custom CSS from file
     with open("style.css", "r") as f:
@@ -87,20 +97,26 @@ with gr.Blocks() as app:
     # Connect buttons to the processing function
     btn_a.click(
         fn=process_image,
-        inputs=[gr.Textbox(value="Class A", visible=False), image_path],
+        inputs=[gr.Textbox(value=CLASS_A_LABEL, visible=False), image_path],
         outputs=[image, image_path],
     )
     btn_b.click(
         fn=process_image,
-        inputs=[gr.Textbox(value="Class B", visible=False), image_path],
+        inputs=[gr.Textbox(value=CLASS_B_LABEL, visible=False), image_path],
         outputs=[image, image_path],
     )
     btn_discard.click(
         fn=process_image,
-        inputs=[gr.Textbox(value="Discard", visible=False), image_path],
+        inputs=[gr.Textbox(value=DISCARD_LABEL, visible=False), image_path],
         outputs=[image, image_path],
     )
 
 # Launch the application
 if __name__ == "__main__":
-    app.launch(server_name="0.0.0.0", server_port=7000, max_threads=40)
+    app.launch(
+        server_name="0.0.0.0",
+        server_port=7000,
+        max_threads=40,
+        show_api=False,
+        quiet=True,
+    )
